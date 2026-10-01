@@ -5,6 +5,67 @@ Ausführlicher Hintergrund steht in `AGENTS.md`.
 
 ---
 
+## 2026-10-01, 12:30
+
+### Ilshofen-Recherche abgeschlossen, Excel erzeugt
+
+Ziel war eine Leadliste aller Betriebe in Ilshofen ohne brauchbaren
+Webauftritt, aus öffentlichen Verzeichnissen.
+
+Quellen: `gewerbeverein-ilshofen.de/mitgliederverzeichnis/` (124 Mitglieder,
+113 davon in der Gemeinde) und die Firmenliste der Stadt (43 Einträge,
+5 Seiten). Beide wurden als Roh-HTML gesichert, geparst und zusammengeführt;
+Ergebnis 112 Betriebe nach Dedupe.
+
+Jeder der zunächst 37 ohne Website geführten Betriebe wurde einzeln geprüft:
+Websuche nach Name und Telefon, Abruf von Domain-Kandidaten, Abgleich mit
+Impressum und Handelsregister. Ergebnis der Prüfung:
+
+| Status | Betriebe |
+|---|---|
+| Keine Website, kein Social-Profil | 20 |
+| Nur Social Media (LinkedIn) | 1 |
+| Domain vorhanden, aber geparkt/leer/503 | 10 |
+| Website aktiv | 81 |
+
+Die 16 zunächst ohne Website geführten Betriebe mit inzwischen gefundener
+Website sind in die Blätter 2 und 3 verschoben. **Ein Verzeichniseintrag ohne
+Website ist kein Beweis für fehlende Internetpräsenz** – bei Autohaus Rössler,
+Autohaus Tobies, Bestattungen Rößler, ESSO, Feil Holzbau, Flaschnerei Hofmann,
+Gärtnerei Brunner, Kebaphaus, Praxis Haas, Zentrum Mensch, Hohenloher
+Bäckerei und RSY Green existierte jeweils eine Domain, die nur nicht im
+Verzeichnis stand.
+
+Ausgabe: `recherche/ILSHOFEN-BETRIEBE-ONLINE-STATUS.xlsx` mit fünf Blättern
+(Leads ohne Webauftritt, Website defekt, Website aktiv, Gesamt, Methodik).
+Roh-HTML und die fertige Excel sind in `.gitignore`, die Skripte und
+Zwischen-JSON sind versioniert.
+
+### Aus der Recherche gelernt
+
+- Direkt-Parsen des HTML ist unzuverlässig, der Markdown-Abruf hat den letzten
+  Verzeichniseintrag samt Seitenfooter verschluckt. Erst Roh-HTML holen.
+- Gleichnamige Betriebe an anderen Orten sind die Hauptfehlerquelle. `autohaus-roessler.de`,
+  `th-fliesen.de`, `vermessung-zeh.de`, `architekt-loew.de` und
+  `maler-seiter.de` gehören nicht zu den Ilshofer Betrieben. Steht im Blatt
+  „Quellen & Methodik".
+- Ein Drittel der in den Verzeichnissen genannten Websites war schon bei
+  Abruf tot oder geparkt. Für den Vertrieb die stärkere Zielgruppe als die
+  Betriebe ganz ohne Domain, weil der Nutzen einmal gezeigt war.
+- Bei drei Einträgen ist kein Betrieb dahinter: Heidi Kastenholz (Privatperson
+  im Gewerbevereinsvorstand), Zur Katze (Privatinitiative), Primeros e.V.
+  (Verein). Als „kein Lead" markiert.
+- Eugen Schweikert GmbH & Co. KG i.L. und Caravan Gerner teilen Nummer und
+  Domain, die Firma ist in Liquidation.
+
+### Offen in der Recherche
+
+- Gewerbebetriebe, die in keinem der beiden Verzeichnisse stehen, fehlen
+  zwangsläufig. Das Gewerbeamt führt keine Online-Daten.
+- Telefonnummern und Adressen stammen aus Verzeichnissen und sind teils alt,
+  etwa bei der Traurednerin und bei Malergeschäft Seiter (zwei Adressen).
+  Vor dem Erstkontakt prüfen.
+
 ## 2026-10-01, 10:05
 
 ### Cloudflare-Port abgeschlossen und getestet

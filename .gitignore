@@ -13,3 +13,10 @@ server/data/
 # Erzeugtes PDF-Dokument
 POSITIONEN-ERKLAERUNG.pdf
 POSITIONEN-ERKLAERUNG-KURZ.pdf
+
+# Ilshofen-Recherche: Roh-HTML und Zwischenstände nicht versionieren
+recherche/*.html
+recherche/__pycache__/
+
+# Erzeugte Excel-Auswertung (Datenstand ist in STATUS.md dokumentiert)
+recherche/*.xlsx

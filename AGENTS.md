@@ -140,7 +140,7 @@ aus, ist die Anfrage trotzdem nicht verloren.
 
 - Eigene Domain + DNS-Einträge (SPF, DKIM, DMARC) — nötig vor dem Livegang
 - Reale Kontaktdaten in `impressum.html` und `datenschutz.html`
-- `ADMIN_TOKEN` ist schwach; vor Produktivbetrieb durch ein langes,
-  zufälliges Passwort ersetzen (`openssl rand -base64 24`)
 - Datenschutz-Bestätigung des Formulars wird serverseitig nicht protokolliert
 - Antwort auf im Chat, ob eine Kopie an den Kunden mitversendet werden soll
+- Rate-Limiting für Login und Formular: die In-Memory-Sperre greift pro
+  Cloudflare-Instanz und schützt im Produktivbetrieb nicht
