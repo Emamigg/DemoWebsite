@@ -49,6 +49,11 @@ node --check server/server.js            # Syntax prüfen
 Port 8765, nur `127.0.0.1`. `ADMIN_TOKEN` aus `.env` wird beim Ausliefern von
 `admin.html` eingesetzt; von außerhalb liefert der Server dort 403.
 
+In der **Cloud** läuft der Adminbereich über `functions/admin/[[path]].js`:
+Anmeldung mit Passwort, danach signiertes HttpOnly-Cookie. Dort wird kein
+Token in die HTML geschrieben, `admin.html` darf deshalb kein `var TOKEN`
+enthalten.
+
 ## Aufbau
 
 ```
@@ -73,10 +78,25 @@ oben bleibt für lokale Entwicklung und Vorführung unverändert.
 
 ```
 functions/api/[[path]].js   Pages Function, Gegenstück zu server/server.js
+functions/admin/[[path]].js Anmeldung, Cookie-Session, wird vorangestellt
 cloudflare/static/          Build-Output, Kopie der HTML/CSS/JS-Dateien
 cloudflare/migrations/      D1-Schema
 wrangler.toml               Projektkonfiguration
 ```
+
+`functions/admin/[[path]].js` wird **vor** `functions/api/[[path]].js`
+angehängt, weil es die Hilfsfunktionen für die Session mitbringt.
+
+**`ADMIN_TOKEN` ist das Admin-Passwort, kein API-Schlüssel.** Grundregeln:
+
+- Niemals in HTML, JavaScript oder eine URL schreiben.
+- Wird nur gegen das Passwort beim Login und beim Token-Abgleich benutzt.
+- Ohne gesetzten Wert bleibt der Adminbereich zu (`passwortGueltig` gibt
+  `false`), nicht offen.
+
+Der Admin-Pfad ist in der Cloud `/admin`, nicht `/admin.html`: Pages leitet
+`.html` auf die Datei ohne Endung um und liefert sie dann als statische Datei
+aus, wodurch jede Function für diesen Pfad umgangen würde.
 
 **Functions müssen unter `./functions/` im Projektwurzelverzeichnis liegen**,
 nicht unter `cloudflare/functions/`. Pages findet sie sonst nicht.
@@ -120,6 +140,7 @@ aus, ist die Anfrage trotzdem nicht verloren.
 
 - Eigene Domain + DNS-Einträge (SPF, DKIM, DMARC) — nötig vor dem Livegang
 - Reale Kontaktdaten in `impressum.html` und `datenschutz.html`
-- `ADMIN_TOKEN` ist schwach; vor Produktivbetrieb ersetzen
+- `ADMIN_TOKEN` ist schwach; vor Produktivbetrieb durch ein langes,
+  zufälliges Passwort ersetzen (`openssl rand -base64 24`)
 - Datenschutz-Bestätigung des Formulars wird serverseitig nicht protokolliert
 - Antwort auf im Chat, ob eine Kopie an den Kunden mitversendet werden soll

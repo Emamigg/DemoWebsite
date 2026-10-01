@@ -254,19 +254,19 @@ function serveAdmin(req, res) {
     return res.end('403 — der Adminbereich ist nur lokal erreichbar.');
   }
 
+  // Lokal gibt es keine Anmeldung: die Schleife hängt an 127.0.0.1. In der
+  // Cloud läuft die Anmeldung über `functions/admin/[[path]].js`.
   fs.readFile(path.join(ROOT, 'admin.html'), 'utf8', (err, html) => {
     if (err) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('404 — nicht gefunden');
     }
-    const token = JSON.stringify(ADMIN_TOKEN);
-    const out = html.replace(/var\s+TOKEN\s*=\s*'[^']*';/, `var TOKEN = ${token};`);
     res.writeHead(200, {
       'Content-Type': MIME['.html'],
       'Cache-Control': 'no-store',
       'X-Content-Type-Options': 'nosniff'
     });
-    res.end(out);
+    res.end(html);
   });
 }
 
@@ -338,8 +338,13 @@ const server = http.createServer(async (req, res) => {
 
   /* --- Protokoll als JSON --- */
   if (pathname === '/api/anfragen') {
+    // Lokal ist die Schleife an 127.0.0.1 der Schutz, deshalb ohne Token-Dialog.
+    // Der Token bleibt für Skripte und Cronjobs möglich.
+    if (!isLocal(req)) return sendJson(res, 401, { ok: false, error: 'unauthorized' });
     const token = url.searchParams.get('token');
-    if (token !== ADMIN_TOKEN) return sendJson(res, 401, { ok: false, error: 'unauthorized' });
+    if (token && token !== ADMIN_TOKEN) {
+      return sendJson(res, 401, { ok: false, error: 'unauthorized' });
+    }
     return sendJson(res, 200, {
       ok: true,
       mode: MAIL_MODE,
@@ -359,8 +364,12 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
-  /* --- Adminbereich (nur lokal) --- */
-  if (pathname === '/admin.html') return serveAdmin(req, res);
+  /* --- Adminbereich (nur lokal, kein Login) --- */
+  if (pathname === '/admin.html' || pathname === '/admin') return serveAdmin(req, res);
+  if (pathname === '/api/logout') {
+    res.writeHead(204, { 'Cache-Control': 'no-store' });
+    return res.end();
+  }
 
   /* --- Statische Dateien --- */
   if (req.method === 'GET' || req.method === 'HEAD') return serveStatic(req, res, pathname);

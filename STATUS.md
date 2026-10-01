@@ -73,19 +73,64 @@ Vor der Übergabe an Kunden, in dieser Reihenfolge:
    `onboarding@resend.dev`, damit gehen Mails nur an die Kontoadresse.
    Domain in Resend anlegen, SPF/DKIM/DMARC eintragen, dann `MAIL_FROM` und
    `MAIL_DOMAIN` als Secrets neu setzen.
-3. **Cloudflare Access vor `/admin.html`.** Siehe Warnung unten.
-4. **Rate-Limiting einrichten.** Siehe Warnung unten.
-5. **Rechtstexte mit echten Daten füllen** und die Klausel zur
+3. **Rate-Limiting einrichten**, für Formular und Login. Siehe Warnung unten.
+4. **Rechtstexte mit echten Daten füllen** und die Klausel zur
    Kleinunternehmerregelung prüfen.
+
+### Adminbereich abgesichert
+
+Echte Anmeldung mit Passwort, statt eines Tokens in der URL.
+
+**Der Fund beim Prüfen:** Der Adminbereich war nicht nur ungeschützt, die
+geplante Token-Einsetzung hätte in der Cloud nie funktioniert. Pages leitet
+`/admin.html` mit 308 auf `/admin` um und liefert dort die Datei direkt aus.
+Ein Filter in `functions/api/[[path]].js` sieht nur `/api/*` — die geplante
+Token-Injection wurde also nie erreicht. `/admin` war frei zugänglich.
+
+Umgesetzt:
+
+- `functions/admin/[[path]].js` fängt `/admin*` ab, ohne Session gibt es nur
+  die Anmeldeseite
+- Login per Formular oder JSON an `/api/login`, setzt signiertes HttpOnly-
+  Cookie mit HMAC-SHA256 über `ADMIN_TOKEN`, 8 Stunden gültig
+- `/api/anfragen` akzeptiert Cookie; Token in der URL bleibt für Skripte
+- Abmelden über `/api/logout`, Leiste in `admin.html` ergänzt
+- **Kein `var TOKEN` mehr in `admin.html`** — weder lokal noch in der Cloud
+- Lokal bleibt es einfach: Schleife an `127.0.0.1`, keine Anmeldung nötig
+- `ADMIN_TOKEN` durch 28-Zeichen-Passwort ersetzt, 167 Bit
+
+Aus der Live-Umgebung geprüft:
+
+| Prüfung | Ergebnis |
+|---|---|
+| `/admin` ohne Anmeldung | nur Anmeldeseite |
+| `/admin.html` | 308 auf `/admin` |
+| Protokoll ohne Cookie | 401 |
+| Cookie mit falscher Signatur | 401 |
+| Cookie korrekt signiert, aber abgelaufen | 401 |
+| Login mit neuem Passwort | 302, Cookie gesetzt |
+| Login mit altem Passwort | 401 |
+| Protokoll nach Login | 200 |
+| Formular nach der Umstellung | 200, Mail gesendet |
+
+**Lehre daraus:** Der Fehler wäre beim reinen Klicken durch die Oberfläche
+nie aufgefallen — die Anmeldeseite sah plausibel aus und die Seite war nur
+eben offen. Erst der direkte Aufruf von `/admin.html` in der Cloud hat gezeigt,
+dass die Absicherung an der falschen Stelle saß.
 
 ### Bekannte Lücken im Live-Betrieb
 
 - **Rate-Limit ist in der Cloud schwächer als lokal.** Die `hits`-Map lebt nur
   so lange wie die Worker-Instanz; Anfragen verteilen sich auf viele
   Instanzen. Für echten Schutz Cloudflare-Rate-Limiting einrichten oder
-  Durable Objects verwenden.
-- **`/admin.html` ist in der Cloud öffentlich erreichbar.** Nur durch den
-  Token geschützt. Vor dem Livegang Cloudflare Access davor setzen.
+  Durable Objects verwenden. Das betrifft das Kontaktformular, nicht den
+  Adminbereich.
+- **Login ist nicht gegen Brute-Force geschützt.** Falsche Passwörter werden
+  abgewiesen, aber ohne Sperre. Für den Livegang Rate-Limiting auf `/api/login`
+  oder Cloudflare Access setzen.
+- **Das Admin-Passwort steht in `.env` im Projektordner.** Auf einem fremden
+  Rechner ist damit der Adminbereich offen. Vor Weitergabe des Projekts den
+  Ordner bewusst entscheiden, nicht unbedacht mitgeben.
 - **IP-Adressen** werden als SHA-256-Hash gespeichert, nicht im Klartext.
 
 ---

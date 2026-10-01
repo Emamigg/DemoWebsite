@@ -101,8 +101,6 @@
 <script>
 (function () {
   'use strict';
-
-  var TOKEN = 'demo';
   var REFRESH_MS = 15000;
   var seen = new Set();
   var firstRun = true;
@@ -147,7 +145,7 @@
   }
 
   function load() {
-    fetch('/api/anfragen?token=' + encodeURIComponent(TOKEN))
+    fetch('/api/anfragen', { credentials: 'same-origin' })
       .then(function (r) {
         if (r.status === 401) throw new Error('unauthorized');
         return r.json();
@@ -164,13 +162,13 @@
         document.getElementById('pillMode').className = 'pill pill--off';
         if (err.message === 'unauthorized') {
           document.getElementById('tableWrap').innerHTML =
-            '<div class="empty"><strong>Zugriff verweigert</strong>Token stimmt nicht.</div>';
+            '<div class="empty"><strong>Zugriff verweigert</strong>Die Anmeldung ist abgelaufen. Bitte neu anmelden.</div>';
         }
       });
   }
 
   function exportJson() {
-    fetch('/api/anfragen?token=' + encodeURIComponent(TOKEN))
+    fetch('/api/anfragen', { credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var blob = new Blob([JSON.stringify(data.entries, null, 2)], { type: 'application/json' });
