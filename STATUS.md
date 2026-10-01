@@ -5,6 +5,61 @@ Ausführlicher Hintergrund steht in `AGENTS.md`.
 
 ---
 
+## 2026-10-01, 10:05
+
+### Cloudflare-Port abgeschlossen und getestet
+
+Lokal über `wrangler pages dev` mit echter D1-Datenbank geprüft:
+
+| Prüfung | Ergebnis |
+|---|---|
+| Status-API | 200, Protokoll lesbar |
+| Gültige Anfrage | angelegt, Mail `resend: gesendet` |
+| Ungültige Daten | 422 mit Feldmeldungen |
+| Honeypot | `id: blocked`, kein Eintrag |
+| Falscher Token | 401 |
+| Richtiger Token | 200 mit Einträgen |
+
+**Zwei Fehler beim Umstellen gefunden und behoben:**
+
+1. Functions lagen unter `cloudflare/functions/`. Pages findet sie nur unter
+   `./functions/` im Projektwurzelverzeichnis, deshalb war die API nicht
+   erreichbar. Liegt jetzt korrekt.
+2. `--d1=DB` legt eine *andere* lokale Datenbank an als die Migration.
+   Deshalb Tabelle nicht gefunden. Lösung: Bindung aus `wrangler.toml`
+   verwenden, Migration und Dev-Server teilen sich dann den Zustand.
+
+Dazu ein echter Datenverlust-Bug: Im Protokoll war `mail` doppelt belegt –
+einmal die E-Mail des Interessenten, einmal der Versandstatus. Die Adresse
+des Interessenten wurde dadurch überschrieben und war im Adminbereich nicht
+mehr sichtbar. Versandstatus heißt jetzt `mailversand`.
+
+### Nächster Schritt
+
+Deployment. Es braucht ein Cloudflare-Konto und diese Befehle:
+
+```bash
+npx wrangler login
+npx wrangler d1 create steinwerk-anfragen      # ID in wrangler.toml eintragen
+npx wrangler d1 migrations apply steinwerk-anfragen --remote
+npx wrangler pages deploy cloudflare/static
+```
+
+Secrets in der Cloud über `npx wrangler pages secret put <NAME>` setzen, nicht
+über `.env` im Repository.
+
+### Beim Livegang beachten
+
+- **Rate-Limit ist in der Cloud schwächer als lokal.** Die `hits`-Map lebt nur
+  so lange wie die Worker-Instanz; Anfragen verteilen sich auf viele
+  Instanzen. Für echten Schutz Cloudflare-Rate-Limiting einrichten oder
+  Durable Objects verwenden.
+- **`/admin.html` ist in der Cloud öffentlich erreichbar.** Nur durch den
+  Token geschützt. Vor dem Livegang Cloudflare Access davor setzen.
+- **IP-Adressen** werden als SHA-256-Hash gespeichert, nicht im Klartext.
+
+---
+
 ## 2026-09-29, 17:20
 
 ### Läuft und geprüft

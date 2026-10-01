@@ -62,8 +62,38 @@ server/server.js    HTTP-Server, Validierung, Protokoll, Mail, SMS
 server/env.js       .env-Parser, keine Abhängigkeiten
 server/mail-check.js DNS-/Resend-Prüfung und Testversand
 MAIL-SETUP.md       DNS-Einträge zum Abtippen
+ANGEBOT.md          Angebotsvorlage 3.500 € mit ROI-Begründung
 .env                Konfiguration und Geheimnisse — nie committen
 ```
+
+## Cloudflare-Version (Livebetrieb)
+
+Zweite, dateisystemlose Variante für den Produktivbetrieb. Der Node-Server
+oben bleibt für lokale Entwicklung und Vorführung unverändert.
+
+```
+functions/api/[[path]].js   Pages Function, Gegenstück zu server/server.js
+cloudflare/static/          Build-Output, Kopie der HTML/CSS/JS-Dateien
+cloudflare/migrations/      D1-Schema
+wrangler.toml               Projektkonfiguration
+```
+
+**Functions müssen unter `./functions/` im Projektwurzelverzeichnis liegen**,
+nicht unter `cloudflare/functions/`. Pages findet sie sonst nicht.
+
+Lokal testen:
+
+```bash
+npx wrangler@latest d1 migrations apply steinwerk-anfragen --local
+npx wrangler@latest pages dev cloudflare/static
+```
+
+**Nicht `--d1=DB` verwenden** — der Schalter legt eine getrennte lokale
+Datenbank an, und die Tabelle aus der Migration fehlt dort. Die Bindung kommt
+aus `wrangler.toml`.
+
+Konfiguration kommt in der Cloud aus Secrets, nicht aus `.env`:
+`npx wrangler pages secret put RESEND_KEY`.
 
 ## Konventionen
 
