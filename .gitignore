@@ -1,0 +1,8 @@
+# Enthält den API-Key des Kunden — niemals weitergeben
+.env
+
+# Anfragen und Postausgabe gehören dem Kunden, nicht ins Repository
+server/data/
+
+# Betriebssystem
+.DS_Store

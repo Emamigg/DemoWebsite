@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anfragen-Protokoll — Steinwerk Demo</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  body { background: var(--sand); }
+
+  .admin { padding: clamp(28px, 4vw, 48px) 0 80px; }
+  .admin__bar {
+    display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+    justify-content: space-between; margin-bottom: 1.6rem;
+  }
+  .admin__bar h1 { font-size: 1.5rem; margin: 0; }
+  .admin__meta { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: .4rem;
+    font-size: .78rem; font-weight: 600; letter-spacing: .02em;
+    padding: .35rem .8rem; border-radius: 100px;
+    background: #fff; border: 1px solid var(--line); color: var(--ink-soft);
+  }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+  .pill--ok::before  { background: #3f8f5f; }
+  .pill--off::before { background: #b08a3e; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: 1.4rem; }
+  .btn--line { background: #fff; border-color: var(--line); color: var(--ink); }
+  .btn--line:hover { border-color: var(--ink); }
+
+  .table-wrap { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 820px; }
+  thead th {
+    text-align: left; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; padding: .9rem 1rem; border-bottom: 1px solid var(--line);
+    background: var(--sand); white-space: nowrap;
+  }
+  tbody td { padding: .9rem 1rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover { background: #fdfcfa; }
+  tbody tr.is-new { background: #fdf4f0; }
+
+  .id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .82rem; color: var(--clay); }
+  .name { font-weight: 600; }
+  .msg { color: var(--ink-soft); max-width: 320px; }
+  a { color: var(--clay); }
+
+  .empty { padding: 4rem 1.5rem; text-align: center; color: var(--muted); }
+  .empty strong { display: block; color: var(--ink); font-size: 1.05rem; margin-bottom: .4rem; }
+
+  .warn {
+    background: #fdf4f0; border: 1px solid #e8cdbf; border-radius: var(--radius);
+    padding: .9rem 1.1rem; margin-bottom: 1.4rem; font-size: .88rem; color: #7d4026;
+  }
+
+  @media (max-width: 640px) {
+    .admin__bar { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<main class="wrap admin">
+
+  <div class="admin__bar">
+    <div>
+      <p class="eyebrow">Intern</p>
+      <h1>Anfragen-Protokoll</h1>
+    </div>
+    <div class="admin__meta">
+      <span class="pill" id="pillMode">Versand: –</span>
+      <span class="pill" id="pillSms">SMS: –</span>
+      <span class="pill" id="pillCount">Einträge: –</span>
+    </div>
+  </div>
+
+  <p class="warn">
+    <strong>Demo-Modus.</strong> Läuft nur lokal auf deinem Rechner. In der Cloud-Version
+    gehört diese Seite hinter eine Anmeldung — dort liegen echte Kundenkontaktdaten.
+  </p>
+
+  <div class="toolbar">
+    <button class="btn btn--line btn--sm" id="btnRefresh">↻ Aktualisieren</button>
+    <a class="btn btn--line btn--sm" id="btnExport" download="anfragen.json">↓ Als JSON exportieren</a>
+    <a class="btn btn--primary btn--sm" href="index.html#kontakt">Testformular öffnen</a>
+  </div>
+
+  <div class="table-wrap" id="tableWrap">
+    <div class="empty">
+      <strong>Noch keine Anfragen</strong>
+      Fülle das Kontaktformular auf der Startseite aus — der Eintrag erscheint hier sofort.
+    </div>
+  </div>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var TOKEN = 'demo';
+  var REFRESH_MS = 15000;
+  var seen = new Set();
+  var firstRun = true;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function linkTel(v)  { return '<a href="tel:' + esc(v.replace(/[^\d+]/g, '')) + '">' + esc(v) + '</a>'; }
+  function linkMail(v) { return '<a href="mailto:' + esc(v) + '">' + esc(v) + '</a>'; }
+
+  function render(entries) {
+    var wrap = document.getElementById('tableWrap');
+
+    if (!entries.length) {
+      wrap.innerHTML = '<div class="empty"><strong>Noch keine Anfragen</strong>' +
+        'Fülle das Kontaktformular auf der Startseite aus — der Eintrag erscheint hier sofort.</div>';
+      return;
+    }
+
+    var rows = entries.map(function (e) {
+      var isNew = !seen.has(e.id);
+      if (isNew && !firstRun) e.__isNew = true;
+      seen.add(e.id);
+
+      return '<tr' + (e.__isNew ? ' class="is-new"' : '') + '>' +
+        '<td><span class="id">' + esc(e.id) + '</span><br>' +
+            '<span style="color:var(--muted);font-size:.8rem">' + esc(e.createdAt) + '</span></td>' +
+        '<td><span class="name">' + esc(e.name) + '</span><br>' + linkTel(e.tel) + '<br>' + linkMail(e.mail) + '</td>' +
+        '<td>' + esc(e.vorhaben) + '</td>' +
+        '<td class="msg">' + esc(e.nachricht) + '</td>' +
+        '<td>' + (e.sms ? esc(e.sms.status) : '<span style="color:var(--muted)">–</span>') + '</td>' +
+        '</tr>';
+    }).join('');
+
+    wrap.innerHTML =
+      '<table><thead><tr>' +
+        '<th>Ref / Eingang</th><th>Kontakt</th><th>Vorhaben</th><th>Nachricht</th><th>SMS</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  function load() {
+    fetch('/api/anfragen?token=' + encodeURIComponent(TOKEN))
+      .then(function (r) {
+        if (r.status === 401) throw new Error('unauthorized');
+        return r.json();
+      })
+      .then(function (data) {
+        document.getElementById('pillMode').textContent = 'Versand: ' + data.mode;
+        document.getElementById('pillMode').className = 'pill ' + (data.mode === 'outbox' ? 'pill--off' : 'pill--ok');
+        document.getElementById('pillCount').textContent = 'Einträge: ' + data.count;
+        render(data.entries);
+        firstRun = false;
+      })
+      .catch(function (err) {
+        document.getElementById('pillMode').textContent = 'Server nicht erreichbar';
+        document.getElementById('pillMode').className = 'pill pill--off';
+        if (err.message === 'unauthorized') {
+          document.getElementById('tableWrap').innerHTML =
+            '<div class="empty"><strong>Zugriff verweigert</strong>Token stimmt nicht.</div>';
+        }
+      });
+  }
+
+  function exportJson() {
+    fetch('/api/anfragen?token=' + encodeURIComponent(TOKEN))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var blob = new Blob([JSON.stringify(data.entries, null, 2)], { type: 'application/json' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'anfragen.json';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+  }
+
+  document.getElementById('btnRefresh').addEventListener('click', load);
+  document.getElementById('btnExport').addEventListener('click', exportJson);
+
+  load();
+  setInterval(load, REFRESH_MS);
+})();
+</script>
+</body>
+</html>
