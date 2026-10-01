@@ -9,7 +9,7 @@ pages_build_output_dir = "cloudflare/static"
 [[d1_databases]]
 binding = "DB"
 database_name = "steinwerk-anfragen"
-database_id = "REPLACE_WITH_DB_ID"
+database_id = "1f7a5f02-aa79-4727-a647-fc2b84e3c4cf"
 migrations_dir = "cloudflare/migrations"
 
 # Variablen (werden über Pages/Workers Secrets gesetzt)
