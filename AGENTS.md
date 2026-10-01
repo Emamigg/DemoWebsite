@@ -58,11 +58,14 @@ enthalten.
 
 ```
 index.html          Landingpage, Formular → POST /api/anfrage
+konfigurator.html   Baukasten fürs Kundengespräch, Vorschau = iframe auf index.html
 admin.html          Protokoll-Ansicht, Token wird serverseitig ersetzt
 impressum.html      Rechtstext-Muster, Platzhalter
 datenschutz.html    Rechtstext-Muster, Platzhalter
 css/styles.css      Alles in reinem CSS, keine externen Bilder oder Webfonts
+css/konfigurator.css  Nur die Werkzeugansicht, greift nicht in styles.css ein
 js/main.js          Navigation, Galerie, Vorher/Nachher, Formular-Fetch
+js/konfigurator.js  Modul-Auswahl, Preis, Vollbild, Vorschau-Breiten
 server/server.js    HTTP-Server, Validierung, Protokoll, Mail, SMS
 server/env.js       .env-Parser, keine Abhängigkeiten
 server/mail-check.js DNS-/Resend-Prüfung und Testversand

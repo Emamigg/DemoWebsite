@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konfigurator — Website mit Anfragesystem</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/konfigurator.css">
+</head>
+<body class="konfig">
+
+<aside class="panel" id="panel">
+  <div class="panel__kopf">
+    <h1>Website-Konfigurator</h1>
+    <p>Musterbetrieb Steinwerk · Preisrichtwert, kein bindender Festpreis</p>
+  </div>
+
+  <div class="panel__vorlagen">
+    <span>Vorlage</span>
+    <div class="vorlagen" role="group" aria-label="Vorlage wählen">
+      <button type="button" class="chipbtn" data-preset="schlank">Schlank</button>
+      <button type="button" class="chipbtn is-an" data-preset="standard">Standard</button>
+      <button type="button" class="chipbtn" data-preset="komplett">Komplett</button>
+    </div>
+  </div>
+
+  <div class="panel__liste" id="liste"></div>
+
+  <div class="panel__fuss">
+    <div class="summe">
+      <div class="summe__zeile"><span>Stunden</span><b id="stunden">0</b></div>
+      <div class="summe__zeile"><span>Leistung</span><b id="leistung">0,00&nbsp;€</b></div>
+      <div class="summe__posten"><span>Domain .de, erstes Jahr</span><span>7,00&nbsp;€</span></div>
+      <div class="summe__posten"><span>Rechtstexte juristisch prüfen</span><span>118,00&nbsp;€</span></div>
+      <div class="summe__gesamt"><span>Gesamt netto</span><b id="gesamt">0,00&nbsp;€</b></div>
+    </div>
+
+    <p class="hinweis" id="hinweis" hidden></p>
+
+    <p class="preisrahmen" id="preisrahmen"></p>
+
+    <div class="panel__knoepfe">
+      <button type="button" class="btn btn--haupt" id="uebernehmen">Auswahl ins Angebot übernehmen</button>
+      <button type="button" class="btn" id="drucken">Zusammenfassung drucken</button>
+    </div>
+  </div>
+</aside>
+
+<main class="buehne">
+  <div class="leiste">
+    <button type="button" class="btn btn--klein" id="vollbild">Vollbild</button>
+
+    <div class="geraete" role="group" aria-label="Vorschaubreite">
+      <button type="button" class="chipbtn is-an" data-breite="breit">Desktop</button>
+      <button type="button" class="chipbtn" data-breite="tablet">Tablet</button>
+      <button type="button" class="chipbtn" data-breite="handy">Handy</button>
+    </div>
+
+    <p class="leiste__stand" id="stand"></p>
+  </div>
+
+  <div class="vorschau" id="vorschau">
+    <iframe id="frame" src="./" title="Vorschau der Demo-Website" loading="eager"></iframe>
+  </div>
+</main>
+
+<button type="button" class="zurueck" id="zurueck" hidden>Konfiguration öffnen</button>
+
+<section class="druckbogen" id="druckbogen" aria-hidden="true"></section>
+
+<script src="js/konfigurator.js"></script>
+</body>
+</html>

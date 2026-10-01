@@ -1,0 +1,330 @@
+/* =========================================================================
+   Konfigurator — Werkzeugansicht, kein Verkaufsauftritt
+   ========================================================================= */
+
+.konfig {
+  --k-bg: #16130f;
+  --k-panel: #201b16;
+  --k-zeile: #2c251e;
+  --k-text: #f3ede4;
+  --k-muted: #a89a89;
+  --k-akzent: #d9a441;
+  --k-strich: #3b322a;
+
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  height: 100vh;
+  margin: 0;
+  background: var(--k-bg);
+  color: var(--k-text);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* ---------- Panel ---------- */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--k-panel);
+  border-right: 1px solid var(--k-strich);
+}
+
+.panel__kopf {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--k-strich);
+}
+
+.panel__kopf h1 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  letter-spacing: .01em;
+}
+
+.panel__kopf p {
+  margin: 0;
+  color: var(--k-muted);
+  font-size: .78rem;
+}
+
+.panel__vorlagen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--k-strich);
+  font-size: .78rem;
+  color: var(--k-muted);
+}
+
+.vorlagen { display: flex; gap: 6px; }
+
+.chipbtn {
+  padding: 5px 11px;
+  border: 1px solid var(--k-strich);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--k-muted);
+  font: inherit;
+  font-size: .76rem;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+
+.chipbtn:hover { border-color: var(--k-akzent); color: var(--k-text); }
+.chipbtn.is-an { border-color: var(--k-akzent); background: rgba(217,164,65,.14); color: var(--k-akzent); }
+
+/* ---------- Modulliste ---------- */
+
+.panel__liste {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 0 18px;
+}
+
+.gruppe {
+  margin: 18px 20px 8px;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--k-akzent);
+}
+
+.posten {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 10px;
+  align-items: start;
+  padding: 9px 20px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+
+.posten:hover { background: var(--k-zeile); }
+.posten:has(input:checked) { border-left-color: var(--k-akzent); background: rgba(217,164,65,.05); }
+.posten:has(input:focus-visible) { outline: 2px solid var(--k-akzent); outline-offset: -2px; }
+
+.posten input {
+  width: 17px;
+  height: 17px;
+  margin: 2px 0 0;
+  accent-color: var(--k-akzent);
+  cursor: pointer;
+}
+
+.posten__text { font-size: .86rem; }
+.posten__text b { display: block; font-weight: 600; }
+
+.posten__pflicht {
+  display: inline-block;
+  margin-top: 3px;
+  padding: 1px 7px;
+  border: 1px solid rgba(217,164,65,.5);
+  border-radius: 999px;
+  font-size: .66rem;
+  font-style: normal;
+  color: var(--k-akzent);
+}
+
+.posten__preis {
+  font-size: .76rem;
+  color: var(--k-muted);
+  white-space: nowrap;
+  padding-top: 1px;
+}
+
+/* ---------- Summe ---------- */
+
+.panel__fuss {
+  flex: 0 0 auto;
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--k-strich);
+  background: #1b1712;
+}
+
+.summe__zeile,
+.summe__posten,
+.summe__gesamt {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: .84rem;
+}
+
+.summe__zeile { margin-bottom: 2px; }
+.summe__zeile b { font-variant-numeric: tabular-nums; }
+.summe__posten { color: var(--k-muted); font-size: .78rem; }
+
+.summe__gesamt {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--k-strich);
+  font-size: 1rem;
+}
+
+.summe__gesamt b {
+  color: var(--k-akzent);
+  font-size: 1.22rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.hinweis {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  border-left: 3px solid #c0562f;
+  border-radius: 0 4px 4px 0;
+  background: rgba(192,86,47,.14);
+  font-size: .78rem;
+}
+
+.preisrahmen {
+  margin: 10px 0 0;
+  color: var(--k-muted);
+  font-size: .74rem;
+  line-height: 1.45;
+}
+
+.panel__knoepfe { display: grid; gap: 7px; margin-top: 13px; }
+
+/* ---------- Knöpfe ---------- */
+
+.btn {
+  padding: 10px 15px;
+  border: 1px solid var(--k-strich);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--k-text);
+  font: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+
+.btn:hover { border-color: var(--k-akzent); background: rgba(217,164,65,.1); }
+
+.btn--haupt {
+  border-color: var(--k-akzent);
+  background: var(--k-akzent);
+  color: #241c12;
+  font-weight: 600;
+}
+
+.btn--haupt:hover { background: #e6b757; }
+
+.btn--klein { padding: 6px 12px; font-size: .78rem; }
+
+/* ---------- Bühne ---------- */
+
+.buehne {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.leiste {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 0 0 auto;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--k-strich);
+  background: var(--k-panel);
+}
+
+.geraete { display: flex; gap: 6px; }
+
+.leiste__stand {
+  margin: 0 0 0 auto;
+  color: var(--k-muted);
+  font-size: .76rem;
+}
+
+.vorschau {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.vorschau iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.vorschau--schmal {
+  box-shadow: 0 0 0 1px var(--k-strich), 0 24px 60px rgba(0,0,0,.55);
+}
+
+/* ---------- Vollbild ---------- */
+
+/* class wird auf <body> gesetzt, das selbst .konfig traegt */
+.konfig.ist-vollbild { grid-template-columns: 1fr; }
+.konfig.ist-vollbild .panel { display: none; }
+
+/* Fallback fuer Browser ohne Fullscreen-API */
+.konfig.ist-breit { grid-template-columns: 1fr; }
+.konfig.ist-breit .panel { display: none; }
+
+.zurueck {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 20;
+  padding: 9px 15px;
+  border: 1px solid var(--k-strich);
+  border-radius: 5px;
+  background: rgba(32,27,22,.94);
+  color: var(--k-text);
+  font: inherit;
+  font-size: .82rem;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(0,0,0,.5);
+}
+
+.zurueck:hover { border-color: var(--k-akzent); }
+
+/* ---------- Druckbogen ---------- */
+
+.druckbogen { display: none; }
+
+@media print {
+  .panel, .buehne, .zurueck { display: none !important; }
+
+  .konfig {
+    display: block;
+    height: auto;
+    overflow: visible;
+    background: #fff;
+    color: #000;
+  }
+
+  .druckbogen { display: block; padding: 24px; }
+  .druckbogen h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  .druckbogen h2 { font-size: 1rem; margin: 22px 0 8px; }
+  .druckbogen p { font-size: .85rem; }
+
+  .druckbogen table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .druckbogen th, .druckbogen td { padding: 6px 8px; border-bottom: 1px solid #ccc; text-align: left; }
+  .druckbogen td:last-child, .druckbogen th:last-child { text-align: right; }
+
+  .druck-summe { margin-top: 16px; font-size: 1rem; }
+  .druck-fuss { margin-top: 24px; font-size: .78rem; color: #555; }
+}
+
+/* ---------- Schmale Fenster ---------- */
+
+@media (max-width: 900px) {
+  .konfig { grid-template-columns: 1fr; grid-template-rows: 45vh 1fr; height: auto; min-height: 100vh; }
+  .panel { border-right: 0; border-bottom: 1px solid var(--k-strich); }
+}

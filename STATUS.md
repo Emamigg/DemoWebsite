@@ -5,6 +5,65 @@ Ausführlicher Hintergrund steht in `AGENTS.md`.
 
 ---
 
+## 2026-10-01, 14:40
+
+### Website-Konfigurator fertiggestellt und getestet
+
+Neue Seite `konfigurator.html` plus `js/konfigurator.js` und
+`css/konfigurator.css`. Zweck: der Kunde wählt am Tisch die Bausteine aus,
+sieht die Auswahl sofort in der laufenden Demo und bekommt einen
+Preisrichtwert. Die bestehende `index.html` bleibt unverändert — die Vorschau
+ist ein gleich-origin-`iframe` darauf.
+
+- 16 Module in vier Gruppen plus fester Grundaufbau (25 Std), Preis 75 €/Std,
+  Domain 7 € und Rechtstexte 118 €. Standard 50 Std / 3.875 €, komplett
+  65 Std / 5.000 €.
+- Drei Vorlagen: Schlank (41 Std), Standard, Komplett.
+- „Auswahl ins Angebot übernehmen" hängt die Konfiguration an das bestehende
+  Nachrichtenfeld des Demo-Formulars. Kein neues API-Feld, D1 bleibt unberührt.
+- Gerätevorschau 1100 / 834 / 390 px, Vollbild mit Fallback für Browser ohne
+  API, Druckbogen für die Preisübersicht.
+
+Geprüft mit Chrome headless, teils über das DevTools-Protokoll, weil die
+Vollbild-API und Smooth-Scrolling unter Virtual-Time nicht laufen:
+26 Preis- und Ausblendungstests, 16 Layout- und Breakpoint-Tests,
+17 Vollbildtests, 13 Drucktests, 12 Navigations- und Tastaturtests — alle
+grün. Zusätzlich einmal ein echter Anfrage-Versand gegen den lokalen Server
+(Status 200); der Testeintrag wurde danach aus dem Protokoll entfernt.
+
+### Entscheidungen
+
+- **Preise sind Richtwerte, kein Festpreis.** Steht so auf dem Knopf, in der
+  Druckausgabe und im Angebotstext. Bindend wird nur das schriftliche Angebot.
+- **Konfigurator nicht indexierbar.** `noindex, nofollow`, damit die Seite
+  nicht in Suchergebnisse auftaucht.
+- **Vorschau bleibt immer auf `index.html`.** Klicks auf Impressum,
+  Datenschutz oder Anker navigieren nicht aus dem iframe heraus, sonst wäre
+  die Auswahl verloren. Anker scrollen intern.
+- **`src="./"` statt `src="index.html"`.** Cloudflare leitet `.html` auf die
+  Endung-lose URL um; mit relativem Verweis stimmt die Vorschau unter
+  `/konfigurator` und beim lokalen Server.
+
+### Gefundene und behobene Fehler
+
+- `doc()` lieferte `null`, bevor das iframe geladen war → das ganze
+  `anwenden()` warf und die Preisanzeige blieb auf 0.
+- `feldVonSms()` gab ein Element statt eines Arrays zurück.
+- `euro()` machte ein `.replace('.', ',')` und traf damit den Tausenderpunkt:
+  3.875,00 € wurde zu 3,875,00 €.
+- CSS fehlte für `ist-breit`; ohne Fullscreen-API wäre das Panel sichtbar
+  geblieben.
+- Preset-Knöpfe bekamen nie eine Aktiv-Markierung.
+- Die Basis-Gruppe wurde in einer Schleife mit `gruppen.length = 0` gebaut.
+
+### Offen
+
+- Die drei Testskripte lagen nur temporär im Projekt und sind wieder entfernt;
+  es gibt noch keinen dauerhaften Testlauf im Repository.
+- Der Konfigurator ist nach dem Deployment öffentlich erreichbar, ohne
+  Zugangsschutz. Wenn das nicht gewollt ist, gehört er hinter die Admin-Login-
+  Route oder auf eine eigene Domain.
+
 ## 2026-10-01, 12:30
 
 ### Ilshofen-Recherche abgeschlossen, Excel erzeugt
