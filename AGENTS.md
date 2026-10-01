@@ -23,6 +23,20 @@ nacherzählen — nur was eine neue Sitzung wirklich braucht.
 - Keys gehören in `.env`, nie in `AGENTS.md`, `STATUS.md` oder ins Chatprotokoll.
 - `.env` und `server/data/` sind in `.gitignore`.
 
+## Versionsverwaltung
+
+Repository liegt in diesem Ordner. Nach jeder abgeschlossenen Änderung committen,
+damit jederzeit ein Earlier-Stand wiederherstellbar ist.
+
+```bash
+git add -A && git commit -m "kurze, konkrete Beschreibung"
+git log --oneline          # Verlauf
+git checkout HEAD~1 -- <datei>   # eine Datei zurückholen
+```
+
+Vor dem Commit prüfen, dass `.env` nicht mitwandert — `git status` muss sie als
+ignoriert zeigen, nie als zum Hinzufügen vorgemerkt.
+
 ## Starten
 
 ```bash
