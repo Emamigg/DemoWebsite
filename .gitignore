@@ -9,3 +9,6 @@ server/data/
 
 # Lokale D1-Datenbank von wrangler
 .wrangler/
+
+# Erzeugtes PDF-Dokument
+POSITIONEN-ERKLAERUNG.pdf
