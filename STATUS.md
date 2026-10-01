@@ -34,21 +34,51 @@ einmal die E-Mail des Interessenten, einmal der Versandstatus. Die Adresse
 des Interessenten wurde dadurch überschrieben und war im Adminbereich nicht
 mehr sichtbar. Versandstatus heißt jetzt `mailversand`.
 
+### Live-Betrieb
+
+**Läuft auf https://steinwerk-demo.pages.dev**
+
+D1-Datenbank `steinwerk-anfragen`, Region EEUR, Migration angewendet.
+Secrets über `wrangler pages secret put` gesetzt, nichts davon im Repository:
+`RESEND_KEY`, `MAIL_FROM`, `MAIL_TO`, `ADMIN_TOKEN`, `MAIL_MODE`.
+
+Aus der Cloud geprüft:
+
+| Prüfung | Ergebnis |
+|---|---|
+| Status-API | 200, `mailMode: resend` |
+| Gültige Anfrage | angelegt, Mail `resend: gesendet` |
+| Ungültige Daten | 422 |
+| Honeypot | `id: blocked` |
+| Falscher Token | 401 |
+| Datenbankinhalt | 2 Einträge direkt in D1 bestätigt |
+
+**Ein Fehler beim ersten Deployment:** `database_id` stand noch auf dem
+Platzhalter `REPLACE_WITH_DB_ID`, dadurch schlugen Migration und Upload beide
+fehl. Nach dem Eintragen der echten UUID lief beides durch.
+
+**Der zweite Fehler war unauffälliger:** Ohne `MAIL_MODE` als Secret fällt die
+Funktion auf `outbox` zurück und schreibt nur noch ins Protokoll, ohne Mail
+zu senden. Die Seite wirkt dabei völlig gesund und die Anfrage wird mit
+`200 OK` quittiert. Deshalb nach dem Umschalten den Mailstatus im Protokoll
+prüfen, nicht nur den HTTP-Code.
+
 ### Nächster Schritt
 
-Deployment. Es braucht ein Cloudflare-Konto und diese Befehle:
+Vor der Übergabe an Kunden, in dieser Reihenfolge:
 
-```bash
-npx wrangler login
-npx wrangler d1 create steinwerk-anfragen      # ID in wrangler.toml eintragen
-npx wrangler d1 migrations apply steinwerk-anfragen --remote
-npx wrangler pages deploy cloudflare/static
-```
+1. **Eigene Domain auf `steinwerk-demo.pages.dev` hängen.** Aktuell steht die
+   Seite auf einer `pages.dev`-Adresse, das ist keine echte Domain.
+2. **Resend auf die eigene Domain umstellen.** `MAIL_FROM` ist noch
+   `onboarding@resend.dev`, damit gehen Mails nur an die Kontoadresse.
+   Domain in Resend anlegen, SPF/DKIM/DMARC eintragen, dann `MAIL_FROM` und
+   `MAIL_DOMAIN` als Secrets neu setzen.
+3. **Cloudflare Access vor `/admin.html`.** Siehe Warnung unten.
+4. **Rate-Limiting einrichten.** Siehe Warnung unten.
+5. **Rechtstexte mit echten Daten füllen** und die Klausel zur
+   Kleinunternehmerregelung prüfen.
 
-Secrets in der Cloud über `npx wrangler pages secret put <NAME>` setzen, nicht
-über `.env` im Repository.
-
-### Beim Livegang beachten
+### Bekannte Lücken im Live-Betrieb
 
 - **Rate-Limit ist in der Cloud schwächer als lokal.** Die `hits`-Map lebt nur
   so lange wie die Worker-Instanz; Anfragen verteilen sich auf viele
