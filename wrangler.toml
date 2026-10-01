@@ -1,0 +1,15 @@
+name = "steinwerk-demo"
+compatibility_date = "2025-09-26"
+compatibility_flags = ["nodejs_compat"]
+
+# Statische Seiten (Pages)
+pages_build_output_dir = "cloudflare/static"
+
+# D1 Datenbank
+[[d1_databases]]
+binding = "DB"
+database_name = "steinwerk-anfragen"
+database_id = "REPLACE_WITH_DB_ID"
+
+# Variablen (werden über Pages/Workers Secrets gesetzt)
+# RESEND_KEY, MAIL_FROM, MAIL_TO, ADMIN_TOKEN, SMS_WEBHOOK, SMS_TO
