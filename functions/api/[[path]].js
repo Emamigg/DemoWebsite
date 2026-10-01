@@ -304,12 +304,14 @@ export async function onRequestGet({ request, env }) {
         timestamp: r.created_at,
         name: r.name,
         tel: r.tel,
+        // `mail` ist die Adresse des Interessenten. Der Versandstatus steht
+        // unter `mailversand` — beide dürfen nicht denselben Schlüssel nutzen.
         mail: r.mail,
         vorhaben: r.vorhaben,
         nachricht: r.nachricht,
         status: r.status,
         source: r.source,
-        mail: safeParse(r.mail_result) || undefined,
+        mailversand: safeParse(r.mail_result) || undefined,
         sms: safeParse(r.sms_result) || undefined
       }))
     });

@@ -6,3 +6,6 @@ server/data/
 
 # Betriebssystem
 .DS_Store
+
+# Lokale D1-Datenbank von wrangler
+.wrangler/

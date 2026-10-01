@@ -10,6 +10,7 @@ pages_build_output_dir = "cloudflare/static"
 binding = "DB"
 database_name = "steinwerk-anfragen"
 database_id = "REPLACE_WITH_DB_ID"
+migrations_dir = "cloudflare/migrations"
 
 # Variablen (werden über Pages/Workers Secrets gesetzt)
 # RESEND_KEY, MAIL_FROM, MAIL_TO, ADMIN_TOKEN, SMS_WEBHOOK, SMS_TO

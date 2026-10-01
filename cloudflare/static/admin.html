@@ -136,13 +136,17 @@
         '<td><span class="name">' + esc(e.name) + '</span><br>' + linkTel(e.tel) + '<br>' + linkMail(e.mail) + '</td>' +
         '<td>' + esc(e.vorhaben) + '</td>' +
         '<td class="msg">' + esc(e.nachricht) + '</td>' +
-        '<td>' + (e.sms ? esc(e.sms.status) : '<span style="color:var(--muted)">–</span>') + '</td>' +
+        '<td>' + (e.sms ? esc(e.sms.status) : '<span style="color:var(--muted)">–</span>') +
+            '<br><span style="color:var(--muted);font-size:.75rem">' +
+            (e.mailversand ? esc(e.mailversand.channel) + ': ' + esc(e.mailversand.status)
+                            : '<span style="color:var(--muted)">Mail unbekannt</span>') +
+            '</span></td>' +
         '</tr>';
     }).join('');
 
     wrap.innerHTML =
       '<table><thead><tr>' +
-        '<th>Ref / Eingang</th><th>Kontakt</th><th>Vorhaben</th><th>Nachricht</th><th>SMS</th>' +
+        '<th>Ref / Eingang</th><th>Kontakt</th><th>Vorhaben</th><th>Nachricht</th><th>SMS / Mail</th>' +
       '</tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
